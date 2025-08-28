@@ -40,6 +40,17 @@ try:
 except:
     SPARSE_ADAM_AVAILABLE = False
 
+
+import cv2
+import numpy as np
+from pytorch_msssim import ssim as msssim
+
+def boundary_guidance_loss(rendered, guidance_mask, lambda_weight=0.5):
+    l1 = torch.nn.functional.l1_loss(rendered, guidance_mask)
+    dssim = 1 - msssim(rendered.unsqueeze(0), guidance_mask.unsqueeze(0), data_range=1.0)
+    return (1 - lambda_weight) * l1 + lambda_weight * dssim
+
+
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from):
 
     if not SPARSE_ADAM_AVAILABLE and opt.optimizer_type == "sparse_adam":
@@ -123,8 +134,23 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         else:
             ssim_value = ssim(image, gt_image)
 
-        loss = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * (1.0 - ssim_value)
+        # funcion de perdida
+        #loss = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * (1.0 - ssim_value)
+        
+        #####
 
+        Lrecon = (1.0 - opt.lambda_dssim) * Ll1 + opt.lambda_dssim * (1.0 - ssim_value)
+
+        mask_filename = os.path.splitext(viewpoint_cam.image_name)[0] + ".jpg"
+        mask_path = os.path.join(dataset.source_path, "boundary_masks", mask_filename)
+
+        boundary_mask = torch.from_numpy(cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)).float().cuda() / 255.0
+        boundary_mask = boundary_mask.unsqueeze(0).repeat(3, 1, 1)
+        Lbd = boundary_guidance_loss(image, boundary_mask, lambda_weight=opt.lambda_bd)
+
+        loss = Lrecon + Lbd
+
+        ###
         # Depth regularization
         Ll1depth_pure = 0.0
         if depth_l1_weight(iteration) > 0 and viewpoint_cam.depth_reliable:
