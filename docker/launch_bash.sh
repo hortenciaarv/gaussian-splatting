@@ -1,30 +1,28 @@
 #!/bin/bash
+set -e
 
 IMAGE_NAME="gaussian-splatting-cuda11"
-CONTAINER_NAME="gaussian-splatting-container_v2"
+CONTAINER_NAME="gaussian-splatting-container"
 
-LOCAL_DIR="/home/horte/Documents/horte/GitHub/gaussian-splatting"
+LOCAL_DIR="/home/alumno/horte/gaussian-splatting"
 CONTAINER_DIR="/root/gaussian-splatting"
 
 echo "🛠️  Construyendo la imagen '$IMAGE_NAME'..."
 docker build -t $IMAGE_NAME .
 
-echo "🚀 Iniciando contenedor '$CONTAINER_NAME'..."
+echo "🚀 Iniciando contenedor '$CONTAINER_NAME' (X11 real + OpenGL)..."
 docker run -it \
-    --cpus=14 \
-    --runtime=nvidia \
-    --gpus all \
-    -v /dev/shm:/dev/shm \
-    -v /tmp/.X11-unix:/tmp/.X11-unix \
-    --network="host" \
-    --device /dev/dri:/dev/dri \
-    --ipc="host" \
-    --privileged \
-    -e DISPLAY=$DISPLAY \
-    --name $CONTAINER_NAME \
-    -v "$LOCAL_DIR:$CONTAINER_DIR" \
-    $IMAGE_NAME
-
-    # --memory=11g \
-    # --memory-swap=17g \
-    # --shm-size=6g \
+  --cpus=64 \
+  --runtime=nvidia --gpus all \
+  --network=host \
+  --ipc=host \
+  --privileged \
+  -e DISPLAY=$DISPLAY \
+  -e QT_X11_NO_MITSHM=1 \
+  -e NVIDIA_DRIVER_CAPABILITIES=all,compute,utility,video,graphics \
+  -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+  -v /dev/shm:/dev/shm \
+  --device /dev/dri:/dev/dri \
+  -v "$LOCAL_DIR:$CONTAINER_DIR" \
+  --name $CONTAINER_NAME \
+  $IMAGE_NAME
