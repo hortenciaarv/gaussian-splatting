@@ -63,11 +63,11 @@ python render.py -m output/f51dae7c-3
 ```
 
 ## 📂 Folder structure for data
-```css
+cat <<EOF
 data/<location>/
 |---input
     |---<image 0>
     |---<image 1>
     |---...
-```
+EOF
 
