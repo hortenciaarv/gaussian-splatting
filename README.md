@@ -62,5 +62,12 @@ python render.py -m output/f51dae7c-3
 
 ```
 
-## 📂 Folder structure
+## 📂 Folder structure for data
+```bash
+data/<location>/
+|---input
+    |---<image 0>
+    |---<image 1>
+    |---...
+```
 
