@@ -61,3 +61,6 @@ python train.py -s data/bottle/
 python render.py -m output/f51dae7c-3
 
 ```
+
+## 📂 Folder structure
+
