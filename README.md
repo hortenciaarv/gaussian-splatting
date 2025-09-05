@@ -5,7 +5,7 @@ This repository allows you to train, render, and experiment with 3D scenes from 
 
 ---
 
-## 📥 Clone the repository
+## Clone the repository
 
 Clone the original repository:
 
