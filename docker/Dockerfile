@@ -13,39 +13,39 @@ RUN apt-get update && apt-get install -y \
     qtbase5-dev && \
     apt-get clean
 
-# miniconda
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p $CONDA_DIR && \
-    rm Miniconda3-latest-Linux-x86_64.sh
+# Miniforge (conda-forge first)
+RUN wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O /tmp/mf.sh && \
+    bash /tmp/mf.sh -b -p $CONDA_DIR && rm /tmp/mf.sh && \
+    conda config --set channel_priority strict && \
+    conda config --remove-key channels || true && \
+    conda config --add channels conda-forge
 
-# conda environment
+# env
 RUN conda create -n gaussian-splatting -y python=3.8
 
-# activate environment
+# activar en shells interactivos
 RUN echo "source activate gaussian-splatting" >> ~/.bashrc
 
-# PyTorch, torchvision, ninja 
+# PyTorch cu118 + ninja (vía pip como tienes)
 RUN /bin/bash -c "source $CONDA_DIR/bin/activate gaussian-splatting && \
     pip install --upgrade pip && \
     pip install torch==2.1.2+cu118 torchvision==0.16.2+cu118 ninja \
         --extra-index-url https://download.pytorch.org/whl/cu118"
 
-# cuda arquitectures
+# cuda archs
 ENV TCNN_CUDA_ARCHITECTURES="70,75,80,86,89"
 
-# tiny-cuda-nn 
+# tiny-cuda-nn
 RUN /bin/bash -c "source $CONDA_DIR/bin/activate gaussian-splatting && \
     pip install git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch"
 
-# COLMAP
+# COLMAP desde conda-forge
 RUN /bin/bash -c "source $CONDA_DIR/bin/activate gaussian-splatting && \
     conda install -y -c conda-forge \
-    colmap=3.8 \
-    boost eigen gflags glog \
-    freeimage suitesparse glew qt libpng libjpeg-turbo \
-    cgal"
+      colmap=3.8 \
+      boost eigen gflags glog \
+      freeimage suitesparse glew qt libpng libjpeg-turbo \
+      cgal"
 
 SHELL ["/bin/bash", "-c"]
 CMD ["bash", "-l"]
-
-# change swap memory to 15 gb (if needed)
