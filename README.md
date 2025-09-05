@@ -1,31 +1,33 @@
 # Gaussian Splatting
 
-Este repositorio implementa el método de **3D Gaussian Splatting** de [graphdeco-inria](https://github.com/graphdeco-inria/gaussian-splatting).
+Official implementation of the **3D Gaussian Splatting** method from [graphdeco-inria](https://github.com/graphdeco-inria/gaussian-splatting).  
+This repository allows you to train, render, and experiment with 3D scenes from multi-view datasets.
 
 ---
 
-## 📥 Clonar el repositorio
+## 📥 Clone the repository
 
-Clonar el repositorio original junto con sus submódulos:
+Clone the original repository:
 
 ```bash
 git clone https://github.com/graphdeco-inria/gaussian-splatting --recursive
 cd gaussian-splatting
 ```
 
-## 🐳 Ejecución en contenedor Docker
-1. Ir a la carpeta de docker/
-2. Ejecutar contenedor
+## 🐳 Run with Docker
+1. Go to the docker/ folder:
+2. Launch the container:
 
 ```bash
 cd docker
 ./launch_bash.sh
 ```
+This will open a terminal inside the container with CUDA and base dependencies ready.
 
-## 📦 Instalación de dependencias
-Dentro del contenedor, instalar los submódulos y librerías adicionales:
+## 📦 Install dependencies
+Inside the container, install the submodules and extra Python libraries.
 
-### Submódulos
+### Submodules
 ```bash
 cd submodules/diff-gaussian-rasterization
 pip install .
@@ -38,7 +40,7 @@ pip install .
 
 ```
 
-### Librerías extra
+### Libraries
 ```bash
 pip install plyfile
 pip install opencv-python
@@ -47,14 +49,15 @@ pip install tqdm
 ```
 
 ## How to use this repository?
+Once dependencies are installed, you can run the following commands:
 ```bash
-# 1. Convertir datos
+# 1. Convert dataset (point cloud generation)
 python convert.py -s data/bottle/
 
-# 2. Entrenar
+# 2. Train the model
 python train.py -s data/bottle/
 
-# 3. Renderizar resultados
+# 3. Render results from a trained model
 python render.py -m output/f51dae7c-3
 
 ```
